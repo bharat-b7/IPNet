@@ -41,7 +41,7 @@ For training/ testing on dataset, you'd need the following directory structure i
 --[subject_02]
 
 ## Train IP-Net
-python train.py -dist 0.5 0.5 -std_dev 0.15 0.015 -batch_size 4 -res 128 -m IPNet -ext 01 -suffix 01 -pc_samples 5000 -num_sample_points 20000 -exp_id 01
+`python train.py -dist 0.5 0.5 -std_dev 0.15 0.015 -batch_size 4 -res 128 -m IPNet -ext 01 -suffix 01 -pc_samples 5000 -num_sample_points 20000 -exp_id 01`
 
 ## Fit SMPL to IP-net predictions
 Coming soon
