@@ -16,8 +16,15 @@ Link to paper: http://arxiv.org/abs/2007.11432
 ## Download pre-trained models
 Coming soon
 
+## Preprocess data for training
+1. Normalize scans: `python utils/preprocess scan.py <scan.obj> <body_shape.obj> <save_name> <save_path>`
+2. Register SMPL+D to the  scan: Coming soon.
+3. Generate query points: `python boundary_sampling_double.py <scan_scaled.obj> <body_shape_scaled.py> <smpld_registration.obj> <save_path> --sigma <sigma> --sample_num 100000 --ext_in 01 --ext_out 01`\
+We used sigma=0.15 and 0.015, ext_in and ext_out are just suffix for naming files.
+4. Generate voxelized input : `python voxelized_pointcloud_sampling.py <scan_scaled.obj> <save_path> --ext 01 --res 128 --num_points 5000`
+
 ## Run IP-Net
-1. Test on a scan/PC: `python test_IPNet.py <pc_path> <network_weights_path> <out_path> -m IPNet`
+1. Test on single scan/PC: `python test_IPNet.py <pc_path> <network_weights_path> <out_path> -m IPNet`
 2. Test on a dataset: `python generate.py -dist 0.5 0.5 -std_dev 0.15 0.015 -res 128 -m IPNet -ext 01 -suffix 01 -pc_samples 5000 -exp_id 01`
 
 For training/ testing on dataset, you'd need the following directory structure if you'd like to use our dataloaders:
@@ -26,6 +33,7 @@ For training/ testing on dataset, you'd need the following directory structure i
 -[dataset]\
 --[subject_01]\
 ---[scan.obj]\
+---[smpld_registration.obj]\
 ---[boundary_sampling]\
 ---- <query points for implicit function, see boundary_samplin_double.py, we use sigma=[0.15, 0.015]>\
 ---[voxels]\
