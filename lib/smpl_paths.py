@@ -15,7 +15,7 @@ import scipy.sparse as sp
 
 ## Set your paths here
 ROOT = '/BS/RVH/work/data/'
-smpl_vt_ft_path = '/BS/bharat/work/MGN_final_release/assets/smpl_vt_ft.pkl'
+smpl_vt_ft_path = 'assets/smpl_vt_ft.pkl'
 
 class SmplPaths:
     def __init__(self, project_dir='', exp_name='', gender='neutral', garment=''):
