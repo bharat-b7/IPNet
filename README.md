@@ -18,7 +18,8 @@ Coming soon
 
 ## Preprocess data for training
 1. Normalize scans: `python utils/preprocess scan.py <scan.obj> <body_shape.obj> <save_name> <save_path>`
-2. Register SMPL+D to the  scan: Coming soon.
+2. Register SMPL+D to the  scan: `smpl_registration/fit_SMPLD.py <scan_path.obj> <save_path>`\
+Note that SMPL fitting is much more stable with correct gender.
 3. Generate query points: `python boundary_sampling_double.py <scan_scaled.obj> <body_shape_scaled.py> <smpld_registration.obj> <save_path> --sigma <sigma> --sample_num 100000 --ext_in 01 --ext_out 01`\
 We used sigma=0.15 and 0.015, ext_in and ext_out are just suffix for naming files.
 4. Generate voxelized input : `python voxelized_pointcloud_sampling.py <scan_scaled.obj> <save_path> --ext 01 --res 128 --num_points 5000`
@@ -44,7 +45,7 @@ For training/ testing on dataset, you'd need the following directory structure i
 `python train.py -dist 0.5 0.5 -std_dev 0.15 0.015 -batch_size 4 -res 128 -m IPNet -ext 01 -suffix 01 -pc_samples 5000 -num_sample_points 20000 -exp_id 01`
 
 ## Fit SMPL to IP-net predictions
-Coming soon
+`python smpl_registration/fit_SMPL_IPNet.py <scan_path.obj> <scan_labels.npy> <scale_file.npy> <save_path>`
 
 Cite us:
 ```
