@@ -14,8 +14,9 @@ Link to paper: http://arxiv.org/abs/2007.11432
 8. Pytorch 1.4
 
 ## Download pre-trained models
-Download IPNet weights: https://datasets.d2.mpi-inf.mpg.de/IPNet2020/IPNet_p5000_01_exp_id01.zip
-
+1. Download IPNet weights: https://datasets.d2.mpi-inf.mpg.de/IPNet2020/IPNet_p5000_01_exp_id01.zip
+2. `mkdir <IPNet directory>/experiments`
+3. Put the downloaded weights in `<IPNet directory>/experiments/`
 ## Preprocess data for training
 1. Normalize scans: `python utils/preprocess scan.py <scan.obj> <body_shape.obj> <save_name> <save_path>`
 2. Register SMPL+D to the  scan: `smpl_registration/fit_SMPLD.py <scan_path.obj> <save_path>`\
