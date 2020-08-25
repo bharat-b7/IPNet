@@ -81,8 +81,6 @@ def batch_get_pose_obj(th_pose_3d, smpl,  init_pose=False):
     idx_mask = hands_observed[:, :, 3] < HAND_VISIBLE
     hands_observed[:, :, :3][idx_mask] = 0.
 
-    # Bharat: Shouldn't this be mean instead of sum (I've changed it for now)?
-    # Why do we want this to depend on batch_size? Problematic because the constant weight depends on this.
     if init_pose:
         pose_init_idx = torch.LongTensor([0, 2, 5, 8, 11])
         return (((J[:, pose_init_idx, : ] - J_observed[:, pose_init_idx, : 3])
