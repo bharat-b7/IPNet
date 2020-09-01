@@ -50,9 +50,9 @@ def torch_pose_obj_data(batch_size=1):
     """
     Keypoint operators on SMPL verts.
     """
-    body25_reg = pkl.load(open(join(ROOT, 'regressors/body25_regressor.pkl'), 'rb'), encoding="latin1").T
-    face_reg = pkl.load(open(join(ROOT, 'regressors/face_regressor.pkl'), 'rb'), encoding="latin1").T
-    hand_reg = pkl.load(open(join(ROOT, 'regressors/hand_regressor.pkl'), 'rb'), encoding="latin1").T
+    body25_reg = pkl.load(open('assets/body25_regressor.pkl', 'rb'), encoding="latin1").T
+    face_reg = pkl.load(open(join(ROOT, 'assets/face_regressor.pkl'), 'rb'), encoding="latin1").T
+    hand_reg = pkl.load(open(join(ROOT, 'assets/hand_regressor.pkl'), 'rb'), encoding="latin1").T
     body25_reg_torch = torch.sparse_coo_tensor(body25_reg.nonzero(), body25_reg.data , body25_reg.shape)
     face_reg_torch = torch.sparse_coo_tensor(face_reg.nonzero(), face_reg.data , face_reg.shape)
     hand_reg_torch = torch.sparse_coo_tensor(hand_reg.nonzero(), hand_reg.data , hand_reg.shape)
