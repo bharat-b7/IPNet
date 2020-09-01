@@ -129,7 +129,7 @@ else:
 # We use this pre-training because inside surface is not available for all the scans.
 # Skip if this model is not available.
 if args.model != 'IPNetMano' and args.model != 'IPNetSingleSurface':
-    pre_path = 'IPNetSingleSurface_p5000_01s_exp_id01'
+    pre_path = 'IPNetSingleSurface_p5000_01s_exp_id02'
     pre_trained = model.IPNetSingleSurface(hidden_dim=args.decoder_hidden_dim, num_parts=14)
     pre_trainer = TrainerIPNet(pre_trained, torch.device("cuda"), None, None, pre_path,
                                optimizer=args.optimizer)

@@ -13,40 +13,47 @@ from utils.voxelized_pointcloud_sampling import voxelize
 from models.generator import GeneratorIPNet, GeneratorIPNetMano, Generator
 import trimesh
 import os
+from os.path import join, split, exists
+from utils.preprocess_scan import SCALE, new_cent
 
 
 def pc2vox(pc, res):
     """Convert PC to voxels for IPNet"""
     # preprocess the pointcloud
-    pc = func(pc)
+    pc, scale, cent = func(pc)
     vox = voxelize(pc, res)
-    return vox
+    return vox, scale, cent
 
 
 def main(args):
     # Load PC
     pc = trimesh.load(args.pc)
-    pc_vox = pc2vox(pc, args.res)
+    pc_vox, scale, cent = pc2vox(pc.vertices, args.res)
     pc_vox = np.reshape(pc_vox, (args.res,) * 3).astype('float32')
+
+    # save scale file
+    from utils.preprocess_scan import SCALE, new_cent
+    np.save(join(args.out_path, 'cent.npy'), [scale / SCALE, (cent - new_cent)])
 
     # Load network
     if args.model == 'IPNet':
         net = model.IPNet(hidden_dim=args.decoder_hidden_dim, num_parts=14)
-        gen = GeneratorIPNet(net, 0.5, exp_name=None, checkpoint=args.checkpoint, resolution=args.retrieval_res,
+        gen = GeneratorIPNet(net, 0.5, exp_name=None, resolution=args.retrieval_res,
                              batch_points=args.batch_points)
     elif args.model == 'IPNetMano':
         net = model.IPNetMano(hidden_dim=args.decoder_hidden_dim, num_parts=7)
-        gen = GeneratorIPNetMano(net, 0.5, exp_name=None, checkpoint=args.checkpoint, resolution=args.retrieval_res,
+        gen = GeneratorIPNetMano(net, 0.5, exp_name=None, resolution=args.retrieval_res,
                                  batch_points=args.batch_points)
     elif args.model == 'IPNetSingleSurface':
         net = model.IPNetSingleSurface(hidden_dim=args.decoder_hidden_dim, num_parts=14)
-        gen = Generator(net, 0.5, exp_name=None, checkpoint=args.checkpoint, resolution=args.retrieval_res,
+        gen = Generator(net, 0.5, exp_name=None, resolution=args.retrieval_res,
                         batch_points=args.batch_points)
     else:
         print('Wow watch where u goin\' with that model')
         exit()
 
     # Load weights
+    print('Loading weights from,', args.weights)
     checkpoint_ = torch.load(args.weights)
     net.load_state_dict(checkpoint_['model_state_dict'])
 
@@ -54,7 +61,7 @@ def main(args):
     if not os.path.exists(args.out_path):
         os.makedirs(args.out_path)
 
-    data = {'input': pc_vox[np.newaxis]}    # add a batch dimension
+    data = {'inputs': torch.tensor(pc_vox[np.newaxis])}    # add a batch dimension
     if args.model == 'IPNet':
         full, body, parts = gen.generate_meshs_all_parts(data)
         body.set_vertex_colors_from_weights(parts)
@@ -72,9 +79,7 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description='Run Model'
-    )
+    parser = argparse.ArgumentParser(description='Run Model')
     # Path to PC mesh
     parser.add_argument('pc', type=str)
     # path to pretrained weights
@@ -88,10 +93,20 @@ if __name__ == "__main__":
     # number of points queried for to produce the result
     parser.add_argument('-retrieval_res', default=256, type=int)
     # number of points from the querey grid which are put into the batch at once
-    parser.add_argument('-batch_points', default=500000, type=int)
+    parser.add_argument('-batch_points', default=300000, type=int)
     # which model to use, e.g. "-m IPNet"
     parser.add_argument('-m', '--model', default='IPNetSingleSurface', type=str)
     args = parser.parse_args()
+
+    # args = lambda: None
+    # args.pc = 'assets/scan.obj'
+    # args.weights = 'experiments/IPNet_p5000_01_exp_id01/checkpoints/checkpoint_epoch_249.tar'
+    # args.out_path = 'DO_NOT_RELEASE/test_data'
+    # args.res = 128
+    # args.decoder_hidden_dim = 256
+    # args.retrieval_res = 256
+    # args.batch_points = 250000
+    # args.model = 'IPNet'
 
     main(args)
 

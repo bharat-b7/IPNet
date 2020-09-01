@@ -25,9 +25,11 @@ Note that SMPL fitting is much more stable with correct gender.
 We used sigma=0.15 and 0.015, ext_in and ext_out are just suffix for naming files.
 4. Generate voxelized input : `python voxelized_pointcloud_sampling.py <scan_scaled.obj> <save_path> --ext 01 --res 128 --num_points 5000`
 
-## Run IP-Net
-1. Test on single scan/PC: `python test_IPNet.py <pc_path> <network_weights_path> <out_path> -m IPNet`
-2. Test on a dataset: `python generate.py -dist 0.5 0.5 -std_dev 0.15 0.015 -res 128 -m IPNet -ext 01 -suffix 01 -pc_samples 5000 -exp_id 01`
+## Run demo IP-Net
+1. Test on single scan/PC: `python test_IPNet.py assets/scan.obj experiments/IPNet_p5000_01_exp_id01/checkpoints/checkpoint_epoch_249.tar out_dir -m IPNet`\
+(It is better to use dataloader for testing on a dataset: `python generate.py -dist 0.5 0.5 -std_dev 0.15 0.015 -res 128 -m IPNet -ext 01 -suffix 01 -pc_samples 5000 -exp_id 01`)
+2. Fit SMPL to IPNet predictions: `python smpl_registration/fit_SMPL_IPNet.py out_dir/body.ply out_dir/parts.npy out_dir/cent.npy out_dir/`
+3. Fit SMPLD: `python smpl_registration/fit_SMPLD.py out_dir/full.ply out_dir -smpl_pkl out_dir/scan.pkl`
 
 For training/ testing on dataset, you'd need the following directory structure if you'd like to use our dataloaders:
 

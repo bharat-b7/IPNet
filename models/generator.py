@@ -107,7 +107,8 @@ class Generator(object):
         self.model.load_state_dict(checkpoint_['model_state_dict'])
 
 
-class GeneratorIPNetMano(Generator):
+class GeneratorIPNet(Generator):
+
     def generate_parts(self, logits_part, vertices):
         """Predict part labels"""
         logits = np.reshape(logits_part.numpy(), (-1, self.resolution, self.resolution, self.resolution))
@@ -119,28 +120,6 @@ class GeneratorIPNetMano(Generator):
         # import ipdb; ipdb.set_trace()
         return parts
 
-    def generate_meshs_all_parts(self, data):
-        grid_points_split = self.generate_grid_torch()
-        inputs = data['inputs'].to(self.device)
-
-        logits_list = {'out': [], 'parts': []}
-        for points in grid_points_split:
-            points.to(self.device)
-            # import ipdb; ipdb.set_trace()
-            with torch.no_grad():
-                logits = self.model(points, inputs)
-            logits_list['out'].append(logits['out'].squeeze(0).detach().cpu())
-            logits_list['parts'].append(logits['parts'].squeeze(0).detach().cpu())
-
-        logits_list['out'] = torch.cat(logits_list['out'], dim=1)
-        logits_list['parts'] = torch.cat(logits_list['parts'], dim=1)
-        full = self.generate_mesh(logits_list['out'])
-        parts = self.generate_parts(logits_list['parts'], full.v.copy())
-        full.v = self.normalize(full.v, MAX, MIN)
-        return full, parts
-
-
-class GeneratorIPNet(GeneratorIPNetMano):
     @staticmethod
     def replace_infs(x):
         x[x == float("Inf")] = x[x != float("Inf")].max()
@@ -181,3 +160,26 @@ class GeneratorIPNet(GeneratorIPNetMano):
         body.v = self.normalize(body.v, MAX, MIN)
 
         return full, body, parts
+
+
+class GeneratorIPNetMano(GeneratorIPNet):
+    def generate_meshs_all_parts(self, data):
+        grid_points_split = self.generate_grid_torch()
+        inputs = data['inputs'].to(self.device)
+
+        logits_list = {'out': [], 'parts': []}
+        for points in grid_points_split:
+            points.to(self.device)
+            # import ipdb; ipdb.set_trace()
+            with torch.no_grad():
+                logits = self.model(points, inputs)
+            logits_list['out'].append(logits['out'].squeeze(0).detach().cpu())
+            logits_list['parts'].append(logits['parts'].squeeze(0).detach().cpu())
+
+        logits_list['out'] = torch.cat(logits_list['out'], dim=1)
+        logits_list['parts'] = torch.cat(logits_list['parts'], dim=1)
+        full = self.generate_mesh(logits_list['out'])
+        parts = self.generate_parts(logits_list['parts'], full.v.copy())
+        full.v = self.normalize(full.v, MAX, MIN)
+        return full, parts
+

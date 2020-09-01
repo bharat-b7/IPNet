@@ -8,17 +8,23 @@ import numpy as np
 import torch
 import ipdb
 
-def get_prior(gender='male'):
-    from lib.smpl_paths import SmplPaths
 
-    dp = SmplPaths(gender=gender)
-    if gender == 'neutral':
-        dp_prior = SmplPaths(gender='male')
+def get_prior(gender='male', precomputed=False):
+    if precomputed:
+        prior = Prior(sm=None)
+        return prior['Generic']
     else:
-        dp_prior = dp
+        from lib.smpl_paths import SmplPaths
 
-    prior = Prior(dp_prior.get_smpl())
-    return prior['generic']
+        dp = SmplPaths(gender=gender)
+        if gender == 'neutral':
+            dp_prior = SmplPaths(gender='male')
+        else:
+            dp_prior = dp
+
+        prior = Prior(dp_prior.get_smpl())
+        return prior['Generic']
+
 
 class th_Mahalanobis(object):
     def __init__(self, mean, prec, prefix):
@@ -37,14 +43,22 @@ class th_Mahalanobis(object):
         return (temp2 * temp2).sum(dim=1)
         
 
-
 class Prior(object):
     def __init__(self, sm, prefix=3):
         self.prefix = prefix
-        self.pose_subjects = sm.pose_subjects
-        all_samples = [p[prefix:] for qsub in self.pose_subjects
-                       for name, p in zip(qsub['pose_fnames'], qsub['pose_parms'])]  # if 'CAESAR' in name or 'Tpose' in name or 'ReachUp' in name]
-        self.priors = {'Generic': self.create_prior_from_samples(all_samples)}
+        if sm is not None:
+            # Compute mean and variance based on the provided poses
+            self.pose_subjects = sm.pose_subjects
+            all_samples = [p[prefix:] for qsub in self.pose_subjects
+                           for name, p in zip(qsub['pose_fnames'], qsub['pose_parms'])]  # if 'CAESAR' in name or 'Tpose' in name or 'ReachUp' in name]
+            self.priors = {'Generic': self.create_prior_from_samples(all_samples)}
+        else:
+            import pickle as pkl
+            # Load pre-computed mean and variance
+            dat = pkl.load(open('assets/pose_prior.pkl', 'rb'))
+            self.priors = {'Generic': th_Mahalanobis(dat['mean'],
+                           dat['precision'],
+                           self.prefix)}
 
     def create_prior_from_samples(self, samples):
         from sklearn.covariance import GraphicalLassoCV
