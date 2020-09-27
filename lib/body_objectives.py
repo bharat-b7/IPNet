@@ -12,8 +12,8 @@ import ipdb
 import torch
 from psbody.mesh import Mesh
 import pickle as pkl
-from psbody.smpl import load_model
-from psbody.smpl.serialization import backwards_compatibility_replacements
+# from psbody.smpl import load_model
+# from psbody.smpl.serialization import backwards_compatibility_replacements
 from lib.smpl_paths import ROOT
 from lib.torch_functions import batch_sparse_dense_matmul
 from lib.mesh_distance import point_to_surface_vec, batch_point_to_surface_vec_signed
