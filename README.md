@@ -12,6 +12,7 @@ Link to paper: http://arxiv.org/abs/2007.11432
 6. Python 3.7.6
 7. Tensorboard 1.15
 8. Pytorch 1.4
+9. SMPL pytorch from https://github.com/gulvarol/smplpytorch. I have included these files in this repo.
 
 ## Download pre-trained models
 1. Download IPNet weights: https://datasets.d2.mpi-inf.mpg.de/IPNet2020/IPNet_p5000_01_exp_id01.zip
