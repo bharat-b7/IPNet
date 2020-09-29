@@ -1,22 +1,12 @@
-"""
-Code taken from https://github.com/gulvarol/smplpytorch
-Modified such that SMPL now also has per-vertex displacements.
-"""
-
 import os
 
 import numpy as np
 import torch
 from torch.nn import Module
 
-import sys
-sys.path.append('../smplpytorch')
-
 from smplpytorch.native.webuser.serialization import ready_arguments
 from smplpytorch.pytorch import rodrigues_layer
 from smplpytorch.pytorch.tensutils import (th_posemap_axisang, th_with_zeros, th_pack, make_list, subtract_flat_id)
-
-print('Using BLB SMPL from the project: LearningRegistration')
 
 
 class SMPL_Layer(Module):
@@ -40,11 +30,9 @@ class SMPL_Layer(Module):
         if gender == 'neutral':
             self.model_path = os.path.join(model_root, 'basicModel_neutral_lbs_10_207_0_v1.0.0.pkl')
         elif gender == 'female':
-            # self.model_path = os.path.join(model_root, 'basicModel_f_lbs_10_207_0_v1.0.0.pkl')
-            self.model_path = os.path.join(model_root, 'female_model.pkl')
+            self.model_path = os.path.join(model_root, 'basicModel_f_lbs_10_207_0_v1.0.0.pkl')
         elif gender == 'male':
-            # self.model_path = os.path.join(model_root, 'basicModel_m_lbs_10_207_0_v1.0.0.pkl')
-            self.model_path = os.path.join(model_root, 'male_model.pkl')
+            self.model_path = os.path.join(model_root, 'basicModel_m_lbs_10_207_0_v1.0.0.pkl')
 
         smpl_data = ready_arguments(self.model_path)
         self.smpl_data = smpl_data
@@ -72,10 +60,12 @@ class SMPL_Layer(Module):
         self.kintree_parents = parents
         self.num_joints = len(parents)  # 24
 
+        print('Using BLB SMPL')
+
     def forward(self,
                 th_pose_axisang,
                 th_betas=torch.zeros(1),
-                th_trans=torch.zeros(1, 3),
+                th_trans=torch.zeros(1),
                 th_offsets=None, scale = 1.):
         """
         Args:
@@ -96,15 +86,15 @@ class SMPL_Layer(Module):
 
         # Below does: v_shaped = v_template + shapedirs * betas
         # If shape parameters are not provided
-        # if th_betas is None or bool(torch.norm(th_betas) == 0):
-            # th_v_shaped = self.th_v_template + torch.matmul(
-            #     self.th_shapedirs, self.th_betas.transpose(1, 0)).permute(2, 0, 1)
-            # th_j = torch.matmul(self.th_J_regressor, th_v_shaped).repeat(
-            #     batch_size, 1, 1)
-        # else:
-        th_v_shaped = self.th_v_template + torch.matmul(
-            self.th_shapedirs, th_betas.transpose(1, 0)).permute(2, 0, 1)
-        th_j = torch.matmul(self.th_J_regressor, th_v_shaped)
+        if th_betas is None or bool(torch.norm(th_betas) == 0):
+            th_v_shaped = self.th_v_template + torch.matmul(
+                self.th_shapedirs, self.th_betas.transpose(1, 0)).permute(2, 0, 1)
+            th_j = torch.matmul(self.th_J_regressor, th_v_shaped).repeat(
+                batch_size, 1, 1)
+        else:
+            th_v_shaped = self.th_v_template + torch.matmul(
+                self.th_shapedirs, th_betas.transpose(1, 0)).permute(2, 0, 1)
+            th_j = torch.matmul(self.th_J_regressor, th_v_shaped)
 
         # Below does: v_posed = v_shaped + posedirs * pose_map
         naked = th_v_shaped + torch.matmul(
@@ -166,14 +156,14 @@ class SMPL_Layer(Module):
         th_jtr *= scale
 
         # If translation is not provided
-        # if th_trans is None or bool(torch.norm(th_trans) == 0):
-        #     if self.center_idx is not None:
-        #         center_joint = th_jtr[:, self.center_idx].unsqueeze(1)
-        #         th_jtr = th_jtr - center_joint
-        #         th_verts = th_verts - center_joint
-        # else:
-        th_jtr = th_jtr + th_trans.unsqueeze(1)
-        th_verts = th_verts + th_trans.unsqueeze(1)
+        if th_trans is None or bool(torch.norm(th_trans) == 0):
+            if self.center_idx is not None:
+                center_joint = th_jtr[:, self.center_idx].unsqueeze(1)
+                th_jtr = th_jtr - center_joint
+                th_verts = th_verts - center_joint
+        else:
+            th_jtr = th_jtr + th_trans.unsqueeze(1)
+            th_verts = th_verts + th_trans.unsqueeze(1)
 
         # Vertices and joints in meters
         return th_verts, th_jtr, th_v_posed, naked
