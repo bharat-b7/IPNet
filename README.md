@@ -15,7 +15,8 @@ Link to paper: http://arxiv.org/abs/2007.11432
 9. SMPL pytorch from https://github.com/gulvarol/smplpytorch. I have included these files in this repo.
 
 ## Download pre-trained models
-1. Download IPNet weights: https://datasets.d2.mpi-inf.mpg.de/IPNet2020/IPNet_p5000_01_exp_id01.zip
+1. Download IPNet weights: https://datasets.d2.mpi-inf.mpg.de/IPNet2020/IPNet_p5000_01_exp_id01.zip \
+IPNet single surface: https://nextcloud.mpi-klsb.mpg.de/index.php/s/4nomcDH8EGwbzNi
 2. `mkdir <IPNet directory>/experiments`
 3. Put the downloaded weights in `<IPNet directory>/experiments/`
 ## Preprocess data for training
