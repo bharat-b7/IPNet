@@ -51,7 +51,8 @@ For training/ testing on dataset, you'd need the following directory structure i
 ## Fit SMPL to IP-net predictions
 `python smpl_registration/fit_SMPL_IPNet.py <scan_path.obj> <scan_labels.npy> <scale_file.npy> <save_path>`
 
-Cite us:
+## Cite us:
+If you use this code please cite: </br>
 ```
 @inproceedings{bhatnagar2020ipnet,
     title = {Combining Implicit Function Learning and Parametric Models for 3D Human Reconstruction},
